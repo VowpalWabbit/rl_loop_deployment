@@ -27,7 +27,7 @@ Before you begin, ensure you have the following:
 3. **Clone the repository:**
 
     ```powershell
-    git clone https://github.com/your-repo/rl_loop_deployment.git
+    git clone https://github.com/VowpalWabbit/rl_loop_deployment.git
     cd rl_loop_deployment/deploy
     ```
 
