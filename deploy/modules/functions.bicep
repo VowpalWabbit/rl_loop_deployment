@@ -15,3 +15,6 @@ func makeEventhubNamespace(eventHubName string) string => '${eventHubName}.servi
 
 @export()
 func makeAppContainerGroupName(prefix string) string => makeResourceName(prefix, 'cg')
+
+@export()
+func makeContainerImagePath(server string, imageName string, imageTag string) string => '${server}/${imageName}:${imageTag}'

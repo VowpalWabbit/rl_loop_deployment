@@ -6,11 +6,15 @@ import * as f from './modules/functions.bicep'
 @description('Location for all resources')
 param location string = resourceGroup().location
 
+@description('Key Vault username for the image registry when the credentials type is keyVault')
+@secure()
+param kvImageRegistryUsername string?
+@description('Key Vault password for the image registry when the credentials type is keyVault')
+@secure()
+param kvImageRegistryPassword string?
+
 @description('Main configuration for the deployment')
 param mainConfig conf.mainConfigT
-
-@secure()
-param acr_secret string?
 
 // Generate the storage account name, event hub name, and container group name
 var storageAccountName = f.makeStorageAccountName(mainConfig.appName)
@@ -34,18 +38,26 @@ var defaultEnvironmentVars = [
 ]
 var containerEnvironmentVars = concat(defaultEnvironmentVars, mainConfig.environmentVars ?? [])
 
-var containerImage = acr_secret == null ? mainConfig.container!.image : {
+var containerImage = {
   name: mainConfig.container!.image.name
   tag: mainConfig.container!.image.tag
   registry: {
     host: mainConfig.container!.image.registry.host
-    credentials: {
+    credentials: (mainConfig.container!.image.registry.credentials.type == 'managedIdentity') ? {
+      isManagedIdentity: true
+      username: mainConfig.container!.image.registry.credentials.username
+      password: null
+    } : (mainConfig.container!.image.registry.credentials.type == 'usernamePassword') ? {
       isManagedIdentity: false
       username: mainConfig.container!.image.registry.credentials.username
-      password: acr_secret
-    }
+      password: mainConfig.container!.image.registry.credentials.password
+    } : (mainConfig.container!.image.registry.credentials.type == 'keyVault') ? {
+      isManagedIdentity: false
+      username: kvImageRegistryUsername
+      password: kvImageRegistryPassword
+    } : { }
   }
-}
+} 
 
 // Deploy the container group, storage account, and event hub
 module containerGroup 'modules/containergroup.bicep' = {

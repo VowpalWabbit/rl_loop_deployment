@@ -3,16 +3,19 @@ import { storageKindType } from './storage.bicep'
 import { eventhubSkuType } from './eventhubs.bicep'
 
 @export()
+type credentialType = 'managedIdentity' | 'usernamePassword' | 'keyVault'
+
+@export()
 type mainConfigT = {
   @description('Application name defining a namespace for messaging and storage')
   appName: string
-  @description('Application environment variables from TrainerConfig, JoinerConfig, LogRententionConfig, and TrainingMonitoringConfig')
+  @description('Application environment variables from TrainerConfig, JoinerConfig, LogRetentionConfig, and TrainingMonitoringConfig')
   environmentVars: object[]?
   @description('The name of the user-assigned managed identity for the tester (used for test ci/cd testing)')
   testerIdentityName: string?
-  @description('Tags applied to each depoloyed resource')
+  @description('Tags applied to each deployed resource')
   resourceTags: object?
-  @description('Configuration for the storage account')
+  @description('Configuration for the storage account')  
   storage: {
     @description('The SKU of the storage account (e.g. Standard_LRS)')
     sku: storageSkuType
@@ -53,11 +56,13 @@ type mainConfigT = {
         host: string
         @description('The credentials for the container registry')
         credentials: {
-          @description('Indicates if the container registry credentials are managed identity or username/password')
-          isManagedIdentity: bool
-          @description('The username for the container registry if not using managed identity; otherwise, the managed identity name')
-          username: string
-          @description('The password for the container registry')
+          @description('The container registry credential type')
+          type: credentialType
+          @description('The username for the container registry if using usernamePassword, the managed identity if using managedIdentity, or the key vault if using a key vault.')
+          @secure()
+          username: string?
+          @description('The password for the container registry or null if using a key vault or a mangaged identity')
+          @secure()
           password: string?
         }
       }

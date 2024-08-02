@@ -7,7 +7,7 @@ type storageKindType = 'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Sto
 type storageConfigT = {
   @description('Name of the storage account')
   name: string
-  @description('Tags applied to each depoloyed resource')
+  @description('Tags applied to each deployed resource')
   resourceTags: object?
   @description('Location for the storage account')
   location: string

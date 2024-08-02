@@ -5,7 +5,7 @@ type eventhubSkuType = 'Basic' | 'Premium' | 'Standard'
 type eventhubsConfigT = {
   @description('Name of the event hub namespace')
   name: string
-  @description('Tags applied to each depoloyed resource')
+  @description('Tags applied to each deployed resource')
   resourceTags: object?
   @description('Location for the event hub namespace')
   location: string

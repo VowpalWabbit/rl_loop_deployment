@@ -1,6 +1,9 @@
 // integration environment parameters
 using 'main.bicep'
 
+param kvImageRegistryUsername = getSecret('mysubscriptionid', 'myresourcegroup', 'keyvaultname', 'imageRegistryUsername')
+param kvImageRegistryPassword = getSecret('mysubscriptionid', 'myresourcegroup', 'keyvaultname', 'imageRegistryPassword')
+
 param mainConfig = {
   appName: 'sampleloop'
   // see full list of supported environment variables below
@@ -46,9 +49,7 @@ param mainConfig = {
       registry: {
         host: 'docker.io'
         credentials: {
-          isManagedIdentity: false
-          username: 'myusername'
-          password: null
+          type: 'keyVault'
         }
       }
       name: 'learningloop/rl_loop'

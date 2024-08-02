@@ -41,48 +41,64 @@ Before you begin, ensure you have the following:
     ```
 
 2. **Image Repository Access**
-    Depending on the image source, there are two options for connecting to the image repository:
+    Depending on the image source, there are three options for authenticating with the image repository:
 
     - Managed Identity Access
-    If using managed identity, set the registry object in the container's configuration as follows (see sample.biceparam):
+    Using managed identity by setting the registry object in the container's configuration as follows (see sample.bicepparam):
 
     ```json
+    // set the mainConfig.registry object in the bicepparam file
     registry: {
         host: 'acrhost.io', // e.g., docker.io, myacr.azurecr.io, etc.
         credentials: {
-            isManagedIdentity: true,
-            username: null,
+            type: 'managedIdentity',
+            username: 'identity',
             password: null
         }
     }
     ```
 
-    - Username/Password
-    If using a username and password, set the registry object in the container's configuration as follows (see sample.biceparam):
+    - [Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/general/quick-create-portal)
+    Use a Key Vault by setting the registry object for the container's configuration as follows (see sample.biceparam):
 
     ```json
+    
+    // get the secrets from the key vault in the bicepparam file
+    param kvImageRegistryUsername = getSecret('mysubscriptionid', 'myresourcegroup', 'keyvaultname', 'imageRegistryUsername')
+    param kvImageRegistryPassword = getSecret('mysubscriptionid', 'myresourcegroup', 'keyvaultname', 'imageRegistryPassword')
+
+    ...
+
+    // set the mainConfig.registry object in the bicepparam file
     registry: {
         host: 'acrhost.io', // e.g., docker.io, myacr.azurecr.io, etc.
         credentials: {
-            isManagedIdentity: false,
+            type: 'keyVault'
+        }
+    }
+    ```
+
+    - Username/Password
+    Using explicity username and password by setting the registry object in the container's configuration as follows (see sample.biceparam):
+    `Note: this method is not recommended`
+
+    ```json
+    // set the mainConfig.registry object in the bicepparam file
+    registry: {
+        host: 'acrhost.io', // e.g., docker.io, myacr.azurecr.io, etc.
+        credentials: {
+            type: 'usernamePassword',
             username: 'myusername',
             password: 'mypassword'
         }
     }
     ```
 
-    It is recommended that the password not be supplied directly in the params file. One option is to pass an additional parameter via the command line where the password can be pulled from a [key vault](https://learn.microsoft.com/en-us/azure/key-vault/general/quick-create-portal) as follows:
-
-    ```powershell
-    az deployment group create --resource-group myResourceGroup --name sample_loop \
-        --parameters sample.bicepparam \
-        --parameters acr_secret=$(az keyvault secret show --name image --vault-name kv-rl-loop --query value -o tsv)
-    ```
 3. **Deploy the RL Loop using Bicep:**
    See the deployment [readme](deploy/README.md) for more information on how to customize your deployment.
 
     ```powershell
-    az deployment group create --resource-group myResourceGroup --name sample_loop --parameters sample.bicepparam
+    az deployment group create --resource-group myResourceGroup --name sample_loop  --rollback-on-error --parameters sample.bicepparam
     ```
 
 4. **Verify Deployment:**
@@ -101,9 +117,9 @@ Before you begin, ensure you have the following:
 
 3. **Use [rl_sim](#running-rl_sim-against-your-loop) to simulate training:**
 
-## Running rl_sim agaist your loop
+## Running rl_sim against your loop
 
-   The detals building rl_sim are locating in project [reinforcement_learning](https://github.com/VowpalWabbit/reinforcement_learning/tree/master#rl-client-library).
+   The details building rl_sim are located in project [reinforcement_learning](https://github.com/VowpalWabbit/reinforcement_learning/tree/master#rl-client-library).
 
 1. Build [reinforcement_learning](https://github.com/VowpalWabbit/reinforcement_learning/tree/master#rl-client-library)
 2. Setup your rl_sim settings

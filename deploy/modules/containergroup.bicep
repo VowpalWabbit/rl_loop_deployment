@@ -1,8 +1,10 @@
+import * as f from './functions.bicep'
+
 // container group setup
 type containerConfigT = {
   @description('Name of the container group')
   name: string
-  @description('Tags applied to each depoloyed resource')
+  @description('Tags applied to each deployed resource')
   resourceTags: object?
   @description('Location for the container group')
   location: string
@@ -27,8 +29,10 @@ type containerConfigT = {
         @description('Indicates if the container registry credentials are managed identity or username/password')
         isManagedIdentity: bool
         @description('The username for the container registry if not using managed identity; otherwise, the managed identity name')
+        @secure()
         username: string
         @description('The password for the container registry')
+        @secure()
         password: string?
       }
     }
@@ -38,7 +42,7 @@ type containerConfigT = {
 param containerConfig containerConfigT
 
 // construct the container image path
-var containerImagePath = '${containerConfig.image.registry.host}/${containerConfig.image.name}:${containerConfig.image.tag}'
+var containerImagePath = f.makeContainerImagePath(containerConfig.image.registry.host, containerConfig.image.name, containerConfig.image.tag)
 
 // get the identity for the container group if using managed identity for the registry credentials
 resource acrPullIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (containerConfig.image.registry.credentials.isManagedIdentity) {
