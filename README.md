@@ -125,13 +125,20 @@ Before you begin, ensure you have the following:
 2. Setup your rl_sim settings
 
    ```powershell
-   todo: add description here
+   ./generate-rl-sim-config.ps1 -appId sample_loop -resourceGroupName myResourceGroup -configFilename rl-sim-config.json
    ```   
 
 3. Run rl_sim
+   After building [reinforcement_learning](https://github.com/VowpalWabbit/reinforcement_learning/tree/master#rl-client-library) execute the r_rim_cpp simulator.  This file is located in the following path.
+
+   ```
+   reinforcement_learning/build/binaries/Debug
+   or
+   reinforcement_learning/build/binaries/Release
+   ```
 
    ```powershell
-   todo: add description here
+   rl_sim_cpp.out.exe -j ./rl-sim-config.json
    ```   
 
 ## Cleanup
